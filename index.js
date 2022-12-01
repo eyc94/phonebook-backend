@@ -58,7 +58,30 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
-  console.log(body);
+
+  if (!body.name && !body.number) {
+    return response.status(400).json({
+      error: 'Name and number are missing'
+    });
+  }
+
+  if (!body.name) {
+    return response.status(400).json({
+      error: 'Name is missing'
+    });
+  }
+
+  if (!body.number) {
+    return response.status(400).json({
+      error: 'Number is missing'
+    });
+  }
+
+  if (persons.filter(p => p.name.toLowerCase() === body.name.toLowerCase()).length > 0) {
+    return response.status(400).json({
+      error: 'The name already exists in the phonebook'
+    });
+  }
 
   const person = {
     id: Math.floor(Math.random() * 99999999),
