@@ -5,8 +5,8 @@ const cors = require('cors');
 const Person = require('./models/person');
 const app = express();
 
-app.use(express.json());
 app.use(express.static('build'));
+app.use(express.json());
 app.use(cors());
 
 morgan.token('data', function (req, res) {
@@ -22,23 +22,25 @@ app.get('/api/persons', (request, response) => {
 });
 
 app.get('/info', (request, response) => {
-  const now = new Date();
-  const numberOfPersons = persons.length;
-  response.send(`
-    <p>Phonebook has info for ${numberOfPersons} people</p>
-    <p>${now}</p>
-  `);
+  Person.countDocuments()
+    .then(result => {
+      response.send(`
+        <p>Phonebook has info for ${result} people</p>
+        <p>${new Date()}</p>
+      `);
+    })
 });
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find(p => p.id === id);
-
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
 });
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -70,12 +72,6 @@ app.post('/api/persons', (request, response) => {
     });
   }
 
-  // if (persons.filter(p => p.name.toLowerCase() === body.name.toLowerCase()).length > 0) {
-  //   return response.status(400).json({
-  //     error: 'The name already exists in the phonebook'
-  //   });
-  // }
-
   const person = new Person({
     name: body.name,
     number: body.number,
@@ -100,6 +96,12 @@ app.put('/api/persons/:id', (request, response, next) => {
     })
     .catch(error => next(error));
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
