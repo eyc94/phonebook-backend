@@ -68,20 +68,20 @@ app.post('/api/persons', (request, response) => {
     });
   }
 
-  if (persons.filter(p => p.name.toLowerCase() === body.name.toLowerCase()).length > 0) {
-    return response.status(400).json({
-      error: 'The name already exists in the phonebook'
-    });
-  }
+  // if (persons.filter(p => p.name.toLowerCase() === body.name.toLowerCase()).length > 0) {
+  //   return response.status(400).json({
+  //     error: 'The name already exists in the phonebook'
+  //   });
+  // }
 
-  const person = {
-    id: Math.floor(Math.random() * 99999999),
+  const person = new Person({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  persons = persons.concat(person);
-  response.json(person);
+  person.save().then(savedPerson => {
+    response.json(savedPerson);
+  });
 });
 
 const PORT = process.env.PORT;
