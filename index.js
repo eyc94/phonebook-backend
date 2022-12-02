@@ -9,7 +9,7 @@ app.use(express.static('build'));
 app.use(express.json());
 app.use(cors());
 
-morgan.token('data', function (req, res) {
+morgan.token('data', function (req) {
   return JSON.stringify(req.body);
 });
 
@@ -28,7 +28,7 @@ app.get('/info', (request, response) => {
         <p>Phonebook has info for ${result} people</p>
         <p>${new Date()}</p>
       `);
-    })
+    });
 });
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -45,7 +45,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end();
     })
     .catch(error => next(error));
@@ -96,7 +96,7 @@ const errorHandler = (error, request, response, next) => {
   }
 
   next(error);
-}
+};
 
 app.use(errorHandler);
 

@@ -18,7 +18,7 @@ const Person = mongoose.model('Person', personSchema);
 if (process.argv.length > 3) {
   mongoose
     .connect(url)
-    .then((result) => {
+    .then(() => {
       const person = new Person({
         name: process.argv[3],
         number: process.argv[4],
@@ -29,15 +29,15 @@ if (process.argv.length > 3) {
     .then(() => {
       console.log(`Added ${process.argv[3]} number ${process.argv[4]} to the Phonebook!`);
       return mongoose.connection.close();
-    })
+    });
 }
 
 if (process.argv.length === 3) {
   mongoose
     .connect(url)
-    .then((result) => {
+    .then(() => {
       Person.find({}).then(result => {
-        console.log('Phonebook:')
+        console.log('Phonebook:');
         result.forEach(person => {
           console.log(person.name, person.number);
         });
